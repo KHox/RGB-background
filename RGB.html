@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Neon Wallpaper</title>
+  <style>
+    html {
+      overflow: hidden;
+    }
+
+    .wallpaper {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: linear-gradient(to top left, #ff0000, #00ff00, #0000ff);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wallpaper"></div>
+  <script type="text/javascript">
+    //CONSTS
+    const FREQUENCY_UPDATE = 10;
+    const FULLSCREEN_RESPONSE = 350;
+
+    let clicks = 0;
+    let clickId;
+    let isFullscreen = false;
+
+    document.onclick = function() {
+      clearTimeout(clickId);
+      clicks++;
+      if (clicks > 1) {
+        let req;
+        if (!isFullscreen) {
+          req = document.body.requestFullScreen || document.body.webkitRequestFullScreen || document.body.mozRequestFullScreen;
+          req.call(document.body);
+        } else {
+          req = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen;
+          req.call(document);
+        }
+        isFullscreen = !isFullscreen;
+        clicks = 0;
+      } else {
+        clickId = setTimeout(function() {
+          clicks = 0;
+        }, FULLSCREEN_RESPONSE)
+      }
+    }
+
+    let firstColor = [255, 0, 0];
+    let secondColor = [0, 255, 0];
+    let lastColor = [0, 0, 255];
+    firstColor.stage = 0;
+    secondColor.stage = 1;
+    lastColor.stage = 2;
+
+    let div = document.querySelector('.wallpaper');
+
+    let timerNeonId = setTimeout(startNeon, FREQUENCY_UPDATE);
+
+    function startNeon() {
+      getNewColor(firstColor);
+      getNewColor(secondColor);
+      getNewColor(lastColor);
+
+      div.style.background = `linear-gradient(to top left, rgb(${firstColor}), rgb(${secondColor}), rgb(${lastColor}))`;
+      timerNeonId = setTimeout(startNeon, FREQUENCY_UPDATE);
+    }
+
+    let step = 0;
+
+    function getNewColor(color) {
+      let stage = color.stage;
+
+      color[stage] -= step;
+      stage++;
+      if (stage > 2) stage = 0;
+      color[stage] += (1 - step);
+      if (color[stage] == 255) color.stage = stage;
+      step = ++step % 2;
+    }
+  </script>
+</body>
+
+</html>
